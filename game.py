@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Feb 12 12:30:43 2026
-
-"""
 # Copyright Lisa Kraatz
 
 # Imports
