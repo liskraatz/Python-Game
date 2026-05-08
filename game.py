@@ -1,4 +1,4 @@
-# Copyright Lisa Kraatz
+# Copyright Lisa Kraatz 
 
 # Imports
 import pygame
