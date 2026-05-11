@@ -3,6 +3,7 @@
 # Imports
 import pygame
 import time
+import random
 
 # Initialize pygame
 pygame.init()
@@ -29,10 +30,15 @@ playerImg = pygame.image.load('player.png')
 def player(x,y):
   gameDisplay.blit(playerImg, (x,y)) # Bliting player image to coordinates 
 
+# Enemies (Obstacles)
+def enemies(enemyX, enemyY, enemyW, enemyH, color):
+  pygame.draw.rect(gameDisplay, color, [enemyX, enemyY, enemyW, enemyH])
+  
+
+# Message Box
 def textObjects(text, font):
   textSurface = font.render(text, True, black)
   return textSurface, textSurface.get_rect() 
-
 
 # Message Display
 def msgDisplay(text):
@@ -58,6 +64,12 @@ def gameLoop():
 
   xChange = 0
 
+  # Create enemy objects
+  enemyStartX = random.randrange(0,displayWidth)
+  enemyStartY = -600 # Pixels off screen
+  enemySpeed = 7
+  enemyWidth = 100
+  enemyHeight = 100
 
   # Initiate variables
   gameExit = False
@@ -82,18 +94,29 @@ def gameLoop():
         if (event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT):
           xChange = 0
 
-    
           
     x += xChange # Update player position
 
-    gameDisplay.fill(white) # Colorize screen
-    player(x,y) # Show player
+    # Colorize screen
+    gameDisplay.fill(white)
+
+    # Enemies
+    enemies(enemyStartX, enemyStartY, enemyWidth, enemyHeight, black)
+    enemyStartY += enemySpeed
+
+    # Repeat enemy (blocks)
+    if (enemyStartY > displayHeight):
+      enemyStartY = 0 - enemyHeight # Resets Y
+      enemyStartX = random.randrange(0,displayWidth) # Resets X
+
+    # Show player
+    player(x,y) 
 
     # Crash if edges of screen hit
     if (x > displayWidth - playerWidth or x < 0): # Minus playerWidth because of upper left corner)
       crash()
 
-
+    
     # Update screen
     pygame.display.update() 
     clock.tick(60) # In fps 
