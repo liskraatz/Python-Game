@@ -28,12 +28,28 @@ clock = pygame.time.Clock()
 # Player Character Image
 playerImg = (pygame.image.load('player.png'))
 
-# Enemy Images
+# Enemies
 enemy1 = pygame.image.load('frog.png')
 enemy2 = pygame.image.load('snail.png')
 enemy3 = pygame.image.load('wasp.png')
 
 randomEnemies = [enemy1, enemy2, enemy3]
+
+class Enemy:
+  def __init__(self):
+    self.image = randomEnemy = random.choice(randomEnemies)
+    self.x = random.randrange(0,displayWidth)
+    self.y = -600 # Pixels off screen
+
+    originalWidth = randomEnemy.get_width() 
+    originalHeight = randomEnemy.get_height()
+    self.width = int(originalWidth * 4) # transform.scale requires int
+    self.height = int(originalHeight / originalWidth * self.width)
+    
+    self.image = pygame.transform.scale(randomEnemy,(self.width,self.height))
+
+    self.speed = 3
+
 
 # Score
 def enemiesDodged(count):
@@ -44,10 +60,7 @@ def enemiesDodged(count):
 # Player 
 def player(x,y):
   gameDisplay.blit(playerImg, (x,y)) # Bliting (Block Image Transfer): copies pixels from one surface onto another
-
-# Enemies (Obstacles)
-def enemies(image, enemyX, enemyY, enemyW, enemyH):
-  gameDisplay.blit(image, (enemyX, enemyY))
+  
  
 # Message Box
 def textObjects(text, font):
@@ -78,21 +91,11 @@ def gameLoop():
 
   xChange = 0
 
-  # Create enemy objects
-  randomEnemy = random.choice(randomEnemies)
-  originalWidth = randomEnemy.get_width() 
-  originalHeight = randomEnemy.get_height()
-
-  enemyStartX = random.randrange(0,displayWidth)
-  enemyStartY = -600 # Pixels off screen
-  enemySpeed = 4
-  enemyWidth = int(originalWidth * 2) # trasform.scale requires int
-  enemyHeight = int(originalHeight / originalWidth * enemyWidth)
-  randomEnemy = pygame.transform.scale(randomEnemy,(enemyWidth,enemyHeight))
-
   # Initiate variables
   dodgeCount = 0
   gameExit = False
+
+  enemy = Enemy()
 
   # Event Handling Loop
   while not gameExit:
@@ -119,24 +122,27 @@ def gameLoop():
     # Colorize screen
     gameDisplay.fill(white)
 
-    # Enemies
-    enemies(randomEnemy, enemyStartX, enemyStartY, enemyWidth, enemyHeight)
-    enemyStartY += enemySpeed
+    # Display enemies
 
-    # Repeat enemy (blocks)
-    if (enemyStartY > displayHeight):
-      randomEnemy = random.choice(randomEnemies)
-      enemyStartY = 0 - enemyHeight # Resets Y
-      enemyStartX = random.randrange(0,displayWidth) # Resets X
-      dodgeCount += 1
+    enemyCount = random.randint(1,5)
+    enemies = []
 
-      # Difficulty
-      enemySpeed += 0.5
-      #enemyWidth += int((dodgeCount * 1.2))
-      #enemyHeight += int((dodgeCount * 1.2))
-      #randomEnemy = pygame.transform.scale(randomEnemy,(enemyWidth,enemyHeight)) # Scale image to fix hitbox
-      enemyCount += 1
-      
+    for x in range(enemyCount):
+      enemies.append(Enemy())
+
+    for i in range(len(enemies)):
+      gameDisplay.blit(en.image, (en.x, en.y))
+      enemy.y += en.speed
+
+      # Repeat enemies
+      if (enemy.y > displayHeight):
+        dodgeCount += 1
+        
+        newSpeed = enemy.speed
+        enemies[i] = Enemy() # Create new enemy
+        newSpeed += dodgeCount * 0.5
+        enemy.speed = newSpeed
+    
 
     # Show player
     player(x,y) 
@@ -149,9 +155,9 @@ def gameLoop():
       crash()
 
     # Enemy crash
-    if (y < enemyStartY + enemyHeight): # Y crossover (bottom line of enemy)
+    if (y < enemy.y + enemy.height): # Y crossover (bottom line of enemy)
       # X collission/ crossover
-      if (x > enemyStartX and x < (enemyStartX + enemyWidth) or (x + playerWidth > enemyStartX and x + playerWidth < (enemyStartX + enemyWidth))):
+      if (x > enemy.x and x < (enemy.x + enemy.width) or (x + playerWidth > enemy.x and x + playerWidth < (enemy.x + enemy.width))):
         crash()
 
 
