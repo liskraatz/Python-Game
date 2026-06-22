@@ -12,9 +12,6 @@ pygame.init()
 black = '#000000'
 white = '#ffffff'
 
-# Player
-playerWidth = 100
-
 #  Game Screen
 displayWidth = 800
 displayHeight = 600
@@ -27,6 +24,11 @@ clock = pygame.time.Clock()
 
 # Player Character Image
 playerImg = (pygame.image.load('player.png'))
+originalHeight = playerImg.get_height()
+originalWidth = playerImg.get_width()
+playerWidth = int(originalWidth / 1.2)
+playerHeight =  int(originalHeight / originalWidth * playerWidth) 
+playerImg = pygame.transform.scale(playerImg,(playerWidth,playerHeight))
 
 # Enemies
 enemy1 = pygame.image.load('frog.png')
@@ -39,7 +41,7 @@ class Enemy:
   def __init__(self):
     self.image = randomEnemy = random.choice(randomEnemies)
     self.x = random.randrange(0,displayWidth)
-    self.y = -600 # Pixels off screen
+    self.y = random.randint(-800, -600)
 
     originalWidth = randomEnemy.get_width() 
     originalHeight = randomEnemy.get_height()
@@ -87,15 +89,20 @@ def crash():
 # Game Loop
 def gameLoop():
   x = (displayWidth * 0.45) # Middle of screen (Player image is referenced from top left corner)
-  y = (displayHeight * 0.7) # Bottom of screen
+  y = (displayHeight * 0.75) # Bottom of screen
 
   xChange = 0
 
   # Initiate variables
   dodgeCount = 0
   gameExit = False
+  needsChange = None
 
-  enemy = Enemy()
+  enemyCount = random.randint(1,5)
+  enemies = []
+  for l in range(enemyCount):
+    enemies.append(Enemy()) # Fill list
+   
 
   # Event Handling Loop
   while not gameExit:
@@ -123,25 +130,31 @@ def gameLoop():
     gameDisplay.fill(white)
 
     # Display enemies
-
-    enemyCount = random.randint(1,5)
-    enemies = []
-
-    for x in range(enemyCount):
-      enemies.append(Enemy())
-
     for i in range(len(enemies)):
-      gameDisplay.blit(en.image, (en.x, en.y))
-      enemy.y += en.speed
+      gameDisplay.blit(enemies[i].image, (enemies[i].x, enemies[i].y))
+      enemies[i].y += enemies[i].speed
 
-      # Repeat enemies
-      if (enemy.y > displayHeight):
+      # Repeat enemies / Waves
+      if (enemies[i].y > displayHeight): # Checks for all items in the list
         dodgeCount += 1
-        
-        newSpeed = enemy.speed
-        enemies[i] = Enemy() # Create new enemy
-        newSpeed += dodgeCount * 0.5
-        enemy.speed = newSpeed
+        enemies[i] = Enemy()
+        needsChange = 1
+        change = random.randint(0,1)
+
+    for mies in enemies:
+        mies.speed = 3 + dodgeCount * 0.1 # Speed increases with dodge count
+
+
+    # Randomize amount of enemies (Add and Remove)
+    if (needsChange is not None):
+      if (len(enemies) > 2 and change == 1):
+        enemies.pop()
+            
+      elif (len(enemies) < 7 and change == 0):
+          enemies.append(Enemy())
+
+    needsChange = None
+
     
 
     # Show player
@@ -155,10 +168,12 @@ def gameLoop():
       crash()
 
     # Enemy crash
-    if (y < enemy.y + enemy.height): # Y crossover (bottom line of enemy)
+    for en in enemies:
+      if (y < en.y + en.height): # Y crossover (bottom line of enemy)
       # X collission/ crossover
-      if (x > enemy.x and x < (enemy.x + enemy.width) or (x + playerWidth > enemy.x and x + playerWidth < (enemy.x + enemy.width))):
-        crash()
+        if (x > en.x and x < (en.x + en.width) or (x + playerWidth > en.x and x + playerWidth < (en.x + en.width))):
+          crash()
+      print(en.height)
 
 
     # Update screen
