@@ -34,19 +34,24 @@ playerImg = pygame.transform.scale(playerImg,(playerWidth,playerHeight))
 enemy1 = pygame.image.load('frog.png')
 enemy2 = pygame.image.load('snail.png')
 enemy3 = pygame.image.load('wasp.png')
+enemy4 = pygame.image.load('squirrel.png')
+enemy5 = pygame.image.load('hedgehog.png')
+enemy6 = pygame.image.load('rolypoly.png')
+enemy7 = pygame.image.load('firefly.png')
 
-randomEnemies = [enemy1, enemy2, enemy3]
+randomEnemies = [enemy1, enemy2, enemy3, enemy4, enemy5]
 
 class Enemy:
   def __init__(self):
     self.image = randomEnemy = random.choice(randomEnemies)
-    self.x = random.randrange(0,displayWidth)
-    self.y = random.randint(-800, -600)
 
     originalWidth = randomEnemy.get_width() 
     originalHeight = randomEnemy.get_height()
     self.width = int(originalWidth * 4) # transform.scale requires int
     self.height = int(originalHeight / originalWidth * self.width)
+
+    self.x = random.randrange(0,(displayWidth - self.width))
+    self.y = random.randint(-800, -600)
     
     self.image = pygame.transform.scale(randomEnemy,(self.width,self.height))
 
@@ -83,7 +88,7 @@ def msgDisplay(text):
 
 # Crash function
 def crash():
-  msgDisplay('You crashed')
+  msgDisplay('You died')
 
 
 # Game Loop
@@ -98,6 +103,7 @@ def gameLoop():
   gameExit = False
   needsChange = None
 
+  # Randomize enemies
   enemyCount = random.randint(1,5)
   enemies = []
   for l in range(enemyCount):
@@ -138,6 +144,7 @@ def gameLoop():
       if (enemies[i].y > displayHeight): # Checks for all items in the list
         dodgeCount += 1
         enemies[i] = Enemy()
+
         needsChange = 1
         change = random.randint(0,1)
 
@@ -173,7 +180,6 @@ def gameLoop():
       # X collission/ crossover
         if (x > en.x and x < (en.x + en.width) or (x + playerWidth > en.x and x + playerWidth < (en.x + en.width))):
           crash()
-      print(en.height)
 
 
     # Update screen
